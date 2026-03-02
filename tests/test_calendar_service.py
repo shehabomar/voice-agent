@@ -93,6 +93,7 @@ def mock_google_service(monkeypatch):
     Returns the mock insert().execute() return value so tests can customise it.
     """
     monkeypatch.setenv("GOOGLE_CREDENTIALS_JSON", FAKE_SA_JSON)
+    monkeypatch.setenv("CALENDAR_ID", "primary")  # isolate from local .env
 
     fake_event = {"id": "evt-001", "htmlLink": "https://calendar.google.com/event?eid=evt-001"}
 

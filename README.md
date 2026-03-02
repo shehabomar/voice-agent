@@ -7,7 +7,7 @@ A real-time AI voice assistant that books Google Calendar meetings through natur
 ## Live Demo
 
 > **Deployed at:** `https://voice-agent-kjjt.onrender.com/demo`
-> *(replace with your Render URL after deploying — see [Deploy to Render](#deploy-to-render) below)*
+
 
 Open the URL in any browser and click **Talk to Agent**. No account, no setup, no install required.
 
@@ -155,7 +155,6 @@ Open `.env` and fill in three values:
 **`GOOGLE_CREDENTIALS_JSON`** — your Service Account JSON key, compacted to a single line:
 ```bash
 python -c "import json; print(json.dumps(json.load(open('your-key.json'))))"
-# paste the output as the value
 ```
 > Also share your Google Calendar with the service account's `client_email` and grant **"Make changes to events"** permission.
 
