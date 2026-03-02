@@ -6,7 +6,7 @@ A real-time AI voice assistant that books Google Calendar meetings through natur
 
 ## Live Demo
 
-> **Deployed at:** `https://YOUR-APP.onrender.com/demo`
+> **Deployed at:** `https://voice-agent-kjjt.onrender.com/demo`
 > *(replace with your Render URL after deploying — see [Deploy to Render](#deploy-to-render) below)*
 
 Open the URL in any browser and click **Talk to Agent**. No account, no setup, no install required.
@@ -32,7 +32,7 @@ Open the URL in any browser and click **Talk to Agent**. No account, no setup, n
 ### Option 2 — REST API directly
 
 ```bash
-curl -X POST https://YOUR-APP.onrender.com/schedule \
+curl -X POST https://voice-agent-kjjt.onrender.com/schedule \
   -H "Content-Type: application/json" \
   -d '{"name": "Alice", "date": "2026-03-20", "time": "14:00", "title": "Demo Call"}'
 ```
@@ -281,7 +281,7 @@ voice-agent/
    - `VAPI_PUBLIC_KEY`
    - `VAPI_ASSISTANT_ID` ← get this by running:
      ```bash
-     python create_vapi_assistant.py --url https://your-app.onrender.com
+     python create_vapi_assistant.py --url https://voice-agent-kjjt.onrender.com/
      ```
-4. The `Procfile` is auto-detected; your app goes live at `https://your-app.onrender.com/demo`
+4. The `Procfile` is auto-detected; your app goes live at `https://voice-agent-kjjt.onrender.com/demo`
 5. Update the **Live Demo** URL at the top of this README
