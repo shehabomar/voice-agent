@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice Scheduling Agent — Live Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0a0a0f;
+      color: #e8e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      text-align: center;
+      padding: 3rem 2.5rem;
+      max-width: 500px;
+      width: 92%;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid #2a2a3e;
+      border-radius: 2rem;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #6366f1;
+      margin-bottom: 2rem;
+      background: rgba(99,102,241,0.08);
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #e8e8f0, #9090b0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #6060808;
+      color: rgb(130,130,160);
+      line-height: 1.65;
+      margin-bottom: 3rem;
+      font-size: 0.95rem;
+    }
+
+    /* ── Call button ── */
+    .btn-wrap { position: relative; display: inline-block; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 9999px;
+      padding: 1rem 2.75rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.1s, box-shadow 0.18s;
+      box-shadow: 0 0 0 0 rgba(79,70,229,0);
+      position: relative;
+      z-index: 1;
+    }
+    .btn:hover:not(:disabled) {
+      background: #4338ca;
+      box-shadow: 0 4px 24px rgba(79,70,229,0.35);
+    }
+    .btn:active:not(:disabled) { transform: scale(0.97); }
+    .btn.calling  { background: #dc2626; }
+    .btn.calling:hover:not(:disabled) { background: #b91c1c; box-shadow: 0 4px 24px rgba(220,38,38,0.35); }
+    .btn:disabled { background: #2a2a3e; color: #555; cursor: not-allowed; }
+
+    /* ripple ring while active */
+    .ring {
+      display: none;
+      position: absolute;
+      inset: -8px;
+      border-radius: 9999px;
+      border: 2px solid rgba(220,38,38,0.5);
+      animation: ring 1.8s ease-out infinite;
+    }
+    .btn.calling ~ .ring { display: block; }
+    @keyframes ring {
+      0%   { transform: scale(1);   opacity: 0.7; }
+      100% { transform: scale(1.18); opacity: 0; }
+    }
+
+    /* ── Status line ── */
+    .status {
+      margin-top: 1.75rem;
+      font-size: 0.88rem;
+      color: #555;
+      min-height: 1.4rem;
+      transition: color 0.25s;
+      letter-spacing: 0.01em;
+    }
+    .status.connected { color: #4ade80; }
+    .status.error     { color: #f87171; }
+
+    /* ── Instructions card ── */
+    .steps {
+      margin-top: 3rem;
+      padding: 1.4rem 1.6rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 1rem;
+      text-align: left;
+    }
+    .steps h3 {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+    .steps ol { padding-left: 1.2rem; }
+    .steps li {
+      font-size: 0.875rem;
+      color: #888;
+      line-height: 2;
+    }
+    .steps li em { color: #bbb; font-style: normal; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 2.5rem;
+      font-size: 0.72rem;
+      color: #333;
+      letter-spacing: 0.02em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <div class="badge">Live Demo</div>
+
+  <h1>Voice Scheduling Agent</h1>
+
+  <p class="subtitle">
+    Click the button and speak naturally.<br>
+    The AI will collect your meeting details and<br>
+    book it live on Google Calendar.
+  </p>
+
+  <div class="btn-wrap">
+    <button class="btn" id="callBtn">
+      <span id="btnIcon">🎤</span>
+      <span id="btnLabel">Talk to Agent</span>
+    </button>
+    <div class="ring"></div>
+  </div>
+
+  <p class="status" id="status">Ready — click to start</p>
+
+  <div class="steps">
+    <h3>What to expect</h3>
+    <ol>
+      <li>Agent greets you and asks for your <em>name</em></li>
+      <li>Provides your preferred <em>date & time</em></li>
+      <li>Optionally give a <em>meeting title</em></li>
+      <li>Confirm — event created live on Google Calendar</li>
+    </ol>
+  </div>
+
+  <p class="footer">Powered by Vapi · FastAPI · Google Calendar API</p>
+</div>
+
+<script type="module">
+  import Vapi from 'https://esm.sh/@vapi-ai/web';
+
+  // Values injected by FastAPI at request time
+  const PUBLIC_KEY   = "__PUBLIC_KEY__";
+  const ASSISTANT_ID = "__ASSISTANT_ID__";
+
+  const btn      = document.getElementById('callBtn');
+  const btnIcon  = document.getElementById('btnIcon');
+  const btnLabel = document.getElementById('btnLabel');
+  const statusEl = document.getElementById('status');
+
+  if (!PUBLIC_KEY || !ASSISTANT_ID) {
+    statusEl.textContent = 'Configuration error — server not fully initialized yet. Try refreshing in a moment.';
+    statusEl.className   = 'status error';
+    console.error('demo.html: PUBLIC_KEY or ASSISTANT_ID is empty. Check VAPI_PUBLIC_KEY in .env and that run_agent.py completed step 4 successfully.');
+    btn.disabled = true;
+  }
+
+  const vapi = new Vapi(PUBLIC_KEY);
+  let active = false;
+
+  function setStatus(msg, cls = '') {
+    statusEl.textContent = msg;
+    statusEl.className   = 'status ' + cls;
+  }
+
+  function setActive(on) {
+    active = on;
+    btn.classList.toggle('calling', on);
+    btnIcon.textContent  = on ? '⏹' : '🎤';
+    btnLabel.textContent = on ? 'End Call' : 'Talk to Agent';
+  }
+
+  vapi.on('call-start',   ()  => { setActive(true);  setStatus('Connected — speak now', 'connected'); });
+  vapi.on('call-end',     ()  => { setActive(false); setStatus('Call ended — feel free to start again'); });
+  vapi.on('speech-start', ()  => setStatus('Listening…', 'connected'));
+  vapi.on('speech-end',   ()  => setStatus('Thinking…', 'connected'));
+  vapi.on('error',        (e) => { setActive(false); setStatus('Error: ' + (e?.message ?? String(e)), 'error'); });
+
+  btn.addEventListener('click', async () => {
+    if (active) {
+      vapi.stop();
+      return;
+    }
+    btn.disabled = true;
+    setStatus('Connecting…');
+    try {
+      await vapi.start(ASSISTANT_ID);
+    } catch (e) {
+      setStatus('Could not connect: ' + (e?.message ?? String(e)), 'error');
+      setActive(false);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+</script>
+
+</body>
+</html>

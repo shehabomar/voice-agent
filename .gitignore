@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+.DS_Store
+venv/
+.pytest_cache/
+
+# Block all JSON files (service account keys, etc.) except the assistant config
+*.json
+!vapi_config.json
